@@ -42,12 +42,9 @@ func (h *hawkularSink) updateDefinitions(mt metrics.MetricType) error {
 	defer h.regLock.Unlock()
 
 	for _, p := range mds {
-		// If no descriptorTag is found, this metric does not belong to Heapster
-		if mk, found := p.Tags[descriptorTag]; found {
-			if model, f := h.models[mk]; f && !h.recent(p, model) {
-				if err := h.client.UpdateTags(mt, p.Id, p.Tags, h.modifiers...); err != nil {
-					return err
-				}
+		if model, f := h.models[p.Tags[descriptorTag]]; f && !h.recent(p, model) {
+			if err := h.client.UpdateTags(mt, p.Id, p.Tags, h.modifiers...); err != nil {
+				return err
 			}
 			h.reg[p.Id] = p
 		}
